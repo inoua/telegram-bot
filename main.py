@@ -1,6 +1,6 @@
 import os
 import logging
-from dotenv import load_dotenv
+import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from telegram import (
@@ -17,7 +17,6 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=lo
 logger = logging.getLogger()
 
 # Загрузка переменных окружения
-load_dotenv()
 TOKEN = os.getenv("TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_ID"))
 METHODIST_CHAT_ID = int(os.getenv("METHODIST_CHAT_ID"))
@@ -36,7 +35,10 @@ pending_applications = {}
 
 # Подключение к Google Sheets
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("telegram-bot-for-magistr-b1c60d226ade.json", scope)
+creds_json = os.environ['GOOGLE_CREDS_JSON']
+print("GOOGLE_CREDS_JSON sample:", creds_json[:200])  # чтобы не засветить весь ключ
+creds_dict = json.loads(creds_json)
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 sheet = client.open("Магистр: Регистрация")
 
